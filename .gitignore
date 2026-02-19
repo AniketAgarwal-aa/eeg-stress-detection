@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+
+# Dataset (large files)
+data/raw/
+data/processed/
+data/interim/
+
+# Models and outputs
+models/
+outputs/
+*.pkl
+*.pt
+*.pth
+*.npz
+*.h5
+
+# Notebooks (if you want to exclude)
+notebooks/
+*.ipynb
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution
+build/
+dist/
+*.egg-info/
+
+# Colab specific
+.sample_data/
