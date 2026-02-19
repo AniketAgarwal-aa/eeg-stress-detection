@@ -1,0 +1,113 @@
+# ====================================================
+# EEG STRESS DETECTION - MAIN CONFIGURATION
+# ====================================================
+
+paths:
+  seed_preprocessed: "data/raw/seed/Preprocessed_EEG"
+  wesad_raw: "data/raw/wesad"
+  processed_dir: "data/processed"
+  model_dir: "models"
+  output_dir: "outputs"
+  figures_dir: "outputs/figures"
+  metrics_dir: "outputs/metrics"
+  logs_dir: "outputs/logs"
+
+dataset:
+  name: "SEED"
+  sampling_rate: 200  # Hz
+  window_size: 200     # samples (1 second at 200Hz)
+  n_channels: 62
+  n_subjects: 15
+  classes: ["Low", "Medium", "High"]
+  label_mapping:
+    -1: 0  # Low
+    0: 1   # Medium
+    1: 2   # High
+
+features:
+  # Classical feature extraction
+  classical:
+    enabled: true
+    n_bands: 5  # delta, theta, alpha, beta, gamma
+    band_ranges:
+      delta: [1, 4]
+      theta: [4, 8]
+      alpha: [8, 13]
+      beta: [13, 30]
+      gamma: [30, 50]
+    
+    # Features per channel
+    differential_entropy: true
+    band_ratios: true
+    hjorth: true
+    statistical_moments: true
+    
+    # Spatial features
+    region_aggregation: true
+    regions:
+      frontal: [0..14]
+      central: [15..29]
+      parietal: [30..44]
+      occipital: [45..54]
+      temporal: [55..61]
+    
+    # Feature selection
+    feature_selection:
+      method: "selectkbest"
+      score_func: "f_classif"
+      k: 150  # Number of features to keep
+
+training:
+  random_state: 42
+  test_size: 0.2
+  
+  # Cross-validation
+  cv:
+    loso: true  # Leave-One-Subject-Out
+    n_folds: 15
+    stratified: true
+  
+  # Classical ML
+  classical:
+    models:
+      - "RandomForest"
+      - "XGBoost"
+      - "SVM"
+      - "LogisticRegression"
+      - "ExtraTrees"
+      - "LightGBM"
+      - "KNN"
+      - "GradientBoosting"
+    
+    hyperparameter_tuning: false  # Set true for grid search
+  
+  # Deep Learning
+  deep:
+    enabled: true
+    model: "eegnet"  # eegnet, eegnet_minimal
+    batch_size: 32
+    epochs: 20
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    early_stopping_patience: 10
+    
+    # DataLoader
+    num_workers: 0  # Set to 0 for Windows, >0 for Linux
+    pin_memory: false
+    
+    # Checkpointing
+    save_best_only: true
+    checkpoint_frequency: 5
+
+hardware:
+  target: "raspberry_pi"  # raspberry_pi, arduino, none
+  enabled: false
+  serial_port: "COM3"
+  baud_rate: 115200
+  single_channel: true  # Use only Fp1 for deployment
+  channel_index: 0  # Fp1 is typically first channel
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "outputs/logs/training.log"
